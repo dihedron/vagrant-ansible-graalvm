@@ -13,7 +13,7 @@ To start the virtual machine, make sure you have `vagrant` installed on your mac
 $> vagrant up
 ```
 
-Once the virtual machine is up and running, make sure the guest's SSH port is mapped to port 2222 on the host. If not, take a not about the mapped port.
+Once the virtual machine is up and running, make sure the guest's SSH port is mapped to port 2222 on the host. If not, take a note about the mapped port.
 
 Then change into the `ansible/` directory, if the guest's SSH port is not mapped to 2222 adjust the `ansible/inventory` file accordingly. Then run the following:
 

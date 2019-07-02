@@ -67,3 +67,5 @@
         backrefs: true
         regexp: 'PATH=(["]*)((?!.*?{{ tools_path }}/apache-maven-{{ maven_version}}/bin).*?)(["]*)$'
         line: 'PATH=\1\2:{{ tools_path }}/apache-maven-{{ maven_version}}/bin\3'
+
+    
