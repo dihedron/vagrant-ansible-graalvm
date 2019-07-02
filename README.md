@@ -7,7 +7,7 @@ This repository contains:
 
 ## How to run
 
-To start the virtual machine, make sure yuo have `vagrant' installed on your machine, than change into the 'vagrant/' directory and run
+To start the virtual machine, make sure you have `vagrant` installed on your machine, than change into the `vagrant/` directory and run
 
 ```bash
 $> vagrant up
