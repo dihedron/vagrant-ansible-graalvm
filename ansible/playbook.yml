@@ -1,0 +1,69 @@
+---
+- name: Install GraalVM on host
+  vars:
+    debugging: true
+    graalvm_type: graalvm-ce
+    graalvm_os: linux
+    graalvm_arch: amd64
+    graalvm_version: 19.1.0
+    graalvm_package: "{{ graalvm_type}}-{{ graalvm_os }}-{{ graalvm_arch }}-{{ graalvm_version }}.tar.gz"
+    maven_version: 3.6.1
+    maven_package: "apache-maven-{{ maven_version }}-bin.tar.gz"
+    tools_path: /tools
+
+  hosts:
+    - graalvm
+  tasks:
+    - name: Create directory for GraalVM, Maven and other Java tools
+      file:
+        path: "{{ tools_path }}"
+        state: directory
+
+    - name: Download the GraalVM package from Oracle website and unarchive it
+      unarchive:
+        src: "https://github.com/oracle/graal/releases/download/vm-{{ graalvm_version }}/{{ graalvm_package }}"
+        dest: "{{ tools_path }}"
+        remote_src: yes
+        creates: "{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}"
+        
+#    - name: list current directory contents
+#      shell: ls -latr {{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}
+#      register: list
+
+    - name: Add GraalVM to $PATH
+      lineinfile:
+        path: /etc/environment
+        state: present
+        backrefs: true
+        regexp: 'PATH=(["]*)((?!.*?{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}/bin).*?)(["]*)$'
+        line: 'PATH=\1\2:{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}/bin\3'
+
+    - name: Add GraalVM to $JAVA_HOME
+      lineinfile:
+        path: /etc/environment
+        state: present
+        line: 'JAVA_HOME="{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}"'
+
+    - name: Install GraalVM native image compiler
+      shell: "{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}/bin/gu install native-image"
+      args:
+        creates: "{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}/jre/lib/svm/bin/native-image"
+
+#    - name: Print the name of the image-native tool
+#      debug:
+#        msg: "{{ tools_path }}/{{ graalvm_type }}-{{ graalvm_version }}/jre/lib/svm/bin/native-image"
+        
+    - name: Download the Maven archive from the Apache website and unarchive it
+      unarchive:
+        src: http://mirror.nohup.it/apache/maven/maven-3/{{ maven_version }}/binaries/{{ maven_package }}
+        dest: "{{ tools_path }}"
+        remote_src: true
+        creates: "{{ tools_path }}/apache-maven-{{ maven_version }}"
+
+    - name: Add Apache Maven to $PATH
+      lineinfile:
+        path: /etc/environment
+        state: present
+        backrefs: true
+        regexp: 'PATH=(["]*)((?!.*?{{ tools_path }}/apache-maven-{{ maven_version}}/bin).*?)(["]*)$'
+        line: 'PATH=\1\2:{{ tools_path }}/apache-maven-{{ maven_version}}/bin\3'
